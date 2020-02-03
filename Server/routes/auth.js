@@ -9,18 +9,35 @@ const validate = require("validate.js");
 
 //Get Data for sign up
 router.post("/signUp", async (req , res ) => {
-    await bcrypt.genSalt(10, (err, salt) => {
-        bcrypt.hash(req.body.pwd, salt, async (err, hash) => {
-            if (err) return res.json({err})
+    email = req.body.email.toLowerCase()
+    name = req.body.name
+    password = req.body.pwd
+    role = ""
 
+    let reg = /[a-z,.]{4,}\d{2,}@kit.edu.kh/ig
+    if ( reg.test(email) ){
+        role = "Student"
+    }else{
+        let newReg = /[a-z,.]{4,}@kit.edu.kh/ig
+        if ( newReg.test(email) ){
+            role = "Lecturer"
+        }else{
+            return res.json({"message" : "Only KIT email is allowed",errCode : "SU-001"})
+        }
+    }
+        
+    await bcrypt.genSalt(10, (err, salt) => {
+        bcrypt.hash(password, salt, async (err, hash) => {
+            if (err) return res.json({err})
             try{
                 const user = new User({
-                    email : req.body.email,
-                    name : req.body.name
+                    email : email,
+                    name : name
                 });
                 const credential = new Credential({
-                    email : req.body.email,
-                    pwd : hash
+                    email : email,
+                    pwd : hash,
+                    role
                 })
 
                 const savedUser = await user.save();
@@ -28,9 +45,9 @@ router.post("/signUp", async (req , res ) => {
                 res.json(savedCredential);
             }catch(err){
                 if (err.code == 11000){
-                    res.json({"message" : "Email is already registered!",errCode : "SU-001"})
+                    res.json({"message" : "Email is already registered!",errCode : "SU-002"})
                 }
-                res.json({err : err.message , errCode : "SU-002"}) 
+                res.json({err : err.message , errCode : "SU-003"}) 
             }
         })
     })
