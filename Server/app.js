@@ -8,7 +8,7 @@ const {deviceManagement,deviceRoute} = require('./routes/devices')
 
 require('dotenv/config');
 
-const PORT = 3001 || process.env.PORT 
+const PORT = 3000 || process.env.PORT 
 
 const app = express();
 const server = app.listen(PORT,async()=> {
