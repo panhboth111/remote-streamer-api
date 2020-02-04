@@ -4,7 +4,8 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const User = require("../Models/user")
 const Credential = require("../Models/credential")
-const validate = require("validate.js");
+const validate = require("validate.js")
+const verify = require("./verifyToken")
 
 
 //Get Data for sign up
@@ -45,7 +46,7 @@ router.post("/signUp", async (req , res ) => {
                 res.json(savedCredential);
             }catch(err){
                 if (err.code == 11000){
-                    res.json({"message" : "Email is already registered!",errCode : "SU-002"})
+                    return res.json({"message" : "Email is already registered!",errCode : "SU-002"})
                 }
                 res.json({err : err.message , errCode : "SU-003"}) 
             }
@@ -115,6 +116,62 @@ router.post("/login", async (req , res ) => {
             return res.json({"message" : "Password entered is incorrect"})
         }
     })
+})
+
+//change password
+router.post("/changePassword", verify , async (req , res ) =>  {
+    email = req.user.email
+    password = req.body.pwd
+    newPassword = req.body.newPwd
+
+    if (password == newPassword) {
+        return res.json({"message" : "New password can't be the same to the previous password!", errCode : "CP-001"})
+    }
+
+    const constraint = {
+        password : {
+            presence : true,
+            length : {
+                minimum : 4,
+                maximum : 16,
+                tooShort : "is too short",
+                tooLong : "is too long"
+            }
+        }
+    }
+
+    const validateRes = validate({password : password, password : newPassword},constraint)
+
+    if (validateRes != undefined) {
+        return res.json(validateRes)
+    }
+
+    const existUser = await Credential.findOne({email:email})
+
+    bcrypt.compare(password , existUser.pwd , async (err, isMatch) => {
+        if (err) return res.json({err})
+        if (isMatch){ // if the pwd matches 
+            // Generate new hash and pass it into database
+            await bcrypt.genSalt(10, (err, salt) => {
+                bcrypt.hash(newPassword, salt, async (err, hash) => {
+                    if (err) return res.json({err})
+                    try{
+                        const result = await Credential.updateOne({email:email},{pwd:hash});
+                        if (result.n >= 1){
+                            res.json({message : "Password changed as successfully!"})
+                        }else{
+                            res.json({message : "Problem Occured during the process of changing password!", errCode : "CP-003"})
+                        }  
+                    }catch(err){
+                        res.json({err : err.message , errCode : "CP-004"}) 
+                    }
+                })
+            })
+        }else{ // if the pwd is not match
+            res.json({message : "Incorrect Password!", errCode : "CP-002"})
+        }
+    })
+
 })
 
 module.exports = router
