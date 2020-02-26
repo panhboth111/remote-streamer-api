@@ -1,6 +1,6 @@
 const loaders = require('./loaders')
 const express = require('express')
-const PORT = process.env.PORT || 4000
+const PORT = 4000
 const socket = require('socket.io')
 const sockets = require('./sockets/index')
 const startServer = async () => {

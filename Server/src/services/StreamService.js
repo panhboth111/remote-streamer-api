@@ -4,7 +4,7 @@ const History = require("../models/history");
 const Streaming = require("../models/streaming");
 const uID = require("../utilities/UniqueCode");
 const axios = require("axios");
-
+const {CHATSERVER,SERVER} = require("../../config")
 class StreamService {
   async startStream(
     { owner, ownerName },
@@ -42,7 +42,9 @@ class StreamService {
           email: owner
         }).save();
         await User.updateOne({ email: owner }, { isStreaming: true });
-        await axios.post('http://10.10.12.76:4000/createRoom', { roomName: streamTitle, roomOwner: owner, roomId: streamCode }).catch(er => console.log(er))
+        console.log(CHATSERVER)
+
+        await axios.post(`${CHATSERVER}/createRoom`,{ roomName: streamTitle, roomOwner: owner, roomId: streamCode }).catch(er => console.log(er))
         console.log("done");
         return resolve({
           streamCode: savedStream.streamCode,
@@ -90,9 +92,8 @@ class StreamService {
           { email: streamBy },
           { currentStream: streamCode, isStreaming: true }
         );
-        //await axios.post('http://10.10.15.11:4000/createRoom',{roomName:streamTitle,roomId:streamCode}).catch(er => console.log(er))
         axios
-          .post("http://10.10.12.76:3000/redirect", { streamBy, streamCode })
+          .post(SERVER+"/redirect", { streamBy, streamCode })
           .catch(er => console.log(er));
         return resolve({
           streamCode: savedStream.streamCode,

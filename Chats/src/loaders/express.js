@@ -9,7 +9,7 @@ module.exports = async app => {
             const {roomName,roomOwner,roomId} = req.body
             await new Room({roomName,roomOwner,roomId}).save()
             console.log("room created")
-            res.json({message:"hi"})
+            return res.json({message:"hi"})
         } catch (error) {
             console.log(error)
         }
@@ -20,7 +20,7 @@ module.exports = async app => {
             const Room_ = await Room.findOne({roomId})
             return res.json({chats:Room_.chats,questions:Room_.questions,announcement:Room_.announcement})
         } catch (error) {
-            console.log(err)
+            console.log(error)
         }
     })
     return app
