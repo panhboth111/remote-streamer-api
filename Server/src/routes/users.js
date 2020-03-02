@@ -16,6 +16,12 @@ router.get("/user", verify, async (req, res) => {
   return res.json(user);
 });
 
+// Change user's name
+router.post("/changeName",verify, async(req,res) => {
+  const response = await userService.changeName(req.user, req.body)
+  return res.json(response)
+})
+
 // Changer user role
 router.post("/changeRole", verify, async (req, res) => {
   const response = await userService.changeRole(req.user, {
@@ -24,14 +30,17 @@ router.post("/changeRole", verify, async (req, res) => {
   });
   return res.json(response);
 });
+// Change cover
 router.post("/changeCover", verify, async (req, res) => {
   const response = await userService.changeCoverPic(req.body, req.user);
   return res.json(response);
 });
+// Change profile picture
 router.post("/changeProfile", verify, async (req, res) => {
   const response = await userService.changeProfilePic(req.body, req.user);
   return res.json(response);
 });
+// Get user history
 router.get("/userHistory", verify, async (req, res) => {
   const response = await userService.getUserHistory(req.user);
   return res.json(response);

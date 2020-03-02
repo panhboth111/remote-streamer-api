@@ -205,6 +205,28 @@ class UserService {
         });
     });
   }
+  async changeName({email}, { name, password }) {
+    return new Promise(async (resolve, reject) => {
+      const existUser = await Credential.findOne({ email: email });
+      bcrypt.compare(password, existUser.pwd, async (err, isMatch) => {
+        if (err) return resolve(err);
+        if (isMatch) {
+          // if the pwd matches
+          // Generate new hash and pass it into database
+          const result = await User.updateOne({email},{name:name})
+          if (result.n == 1){
+            return resolve({ message : "Successfully change the user's name" })
+          }else{
+            return resolve({ message : "Failed to change the user's name"})
+          }
+        } else {
+          // if the pwd is not match
+          return resolve({ message: "Incorrect Password!", errCode: "CN-001" });
+        }
+      });
+
+    });
+  }
   async changeProfilePic({ newProfile }, { email }) {
     return new Promise(async (resolve, reject) => {
       await User.updateOne({ email }, { profilePic: newProfile })
