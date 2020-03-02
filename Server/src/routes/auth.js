@@ -17,11 +17,11 @@ router.post("/login", async (req, res) => {
 router.post(
   "/changePassword",
   verify,
-  async ({ password, newPassword }, res) => {
+  async (req, res) => {
     const response = await userService.changePassword(
       req.user.email,
-      password,
-      newPassword
+      req.body.password,
+      req.body.newPassword
     );
     return res.json(response);
   }
