@@ -135,7 +135,11 @@ class UserService {
         { password: password, password: newPassword },
         constraint
       );
-      if (validateRes != undefined) return resolve(validateRes);
+      console.log(validateRes)
+      if (validateRes != undefined) return resolve({
+        message: validateRes.password,
+        errCode: "CP-005"
+      });
       const existUser = await Credential.findOne({ email: email });
       bcrypt.compare(password, existUser.pwd, async (err, isMatch) => {
         if (err) return resolve(err);
@@ -197,7 +201,7 @@ class UserService {
       } else
         return resolve({
           message: "You are not authorized to performed the following task",
-          errCode: "CR-001"
+          errCode: "CR-004"
         });
     });
   }
