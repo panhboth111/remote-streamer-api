@@ -19,8 +19,8 @@ class StreamService {
         });
       else await User.updateOne({ email: owner }, { isStreaming: true });
       try {
-        var streamCode = null;
-        var isNotUnique = null;
+        let streamCode = null;
+        let isNotUnique = null;
         do {
           streamCode = uID(12);
           isNotUnique = await Streaming.findOne({ streamCode });
@@ -64,8 +64,8 @@ class StreamService {
     return new Promise(async (resolve, reject) => {
       const _U = await User.findOne({ email: streamBy });
       try {
-        var streamCode = null;
-        var isNotUnique = null;
+        let streamCode = null;
+        let isNotUnique = null;
         do {
           streamCode = uID(12);
           isNotUnique = await Streaming.findOne({ streamCode });

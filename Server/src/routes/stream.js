@@ -47,8 +47,8 @@ router.post("/editstream", verify, async (req, res) => {
 });
 // Get currently stream of all class participated
 router.post("/getCurrentlyStream", verify, async (req, res) => {
-  var limit = req.body.limit == null ? 0 : req.body.limit;
-  var status = req.body.status;
+  const limit = req.body.limit == null ? 0 : req.body.limit;
+  const status = req.body.status;
   const response = await streamService.getCurrentStreams(limit, status);
   return res.json(response);
 });
