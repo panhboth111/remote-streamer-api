@@ -8,7 +8,7 @@ const {CHATSERVER,SERVER} = require("../../config")
 class StreamService {
   async startStream(
     { owner, ownerName },
-    { streamTitle, description, isPrivate, password }
+    { streamTitle, description, isPrivate, password, thumbnail }
   ) {
     return new Promise(async (resolve, reject) => {
       const user = await User.findOne({ email: owner });
@@ -29,6 +29,7 @@ class StreamService {
           streamCode,
           streamTitle,
           description,
+          thumbnail,
           isPrivate,
           password,
           owner,
