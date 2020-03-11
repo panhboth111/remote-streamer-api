@@ -33,7 +33,7 @@ router.post("/stopStream", verify, async (req, res) => {
   const response = await streamService.stopStream(req.user.email);
   return res.json(response);
 });
-
+// Admin Stop Stream
 router.post("/adminStopStream", verify, async (req, res) => {
   console.log("I'm also here");
   const response = await streamService.adminStopStream(req.user, req.body);
@@ -45,6 +45,7 @@ router.post("/editstream", verify, async (req, res) => {
   const response = await streamService.editStream(req.body, req.user);
   return res.json(response);
 });
+
 // Get currently stream of all class participated
 router.post("/getCurrentlyStream", verify, async (req, res) => {
   const limit = req.body.limit == null ? 0 : req.body.limit;
@@ -52,6 +53,7 @@ router.post("/getCurrentlyStream", verify, async (req, res) => {
   const response = await streamService.getCurrentStreams(limit, status);
   return res.json(response);
 });
+
 // Get Stream Detials
 router.post("/getStreamDetail", verify, async (req, res) => {
   const response = await streamService.getStreamDetail(req.body);

@@ -30,16 +30,19 @@ router.post("/changeRole", verify, async (req, res) => {
   });
   return res.json(response);
 });
+
 // Change cover
 router.post("/changeCover", verify, async (req, res) => {
   const response = await userService.changeCoverPic(req.body, req.user);
   return res.json(response);
 });
+
 // Change profile picture
 router.post("/changeProfile", verify, async (req, res) => {
   const response = await userService.changeProfilePic(req.body, req.user);
   return res.json(response);
 });
+
 // Get user history
 router.get("/userHistory", verify, async (req, res) => {
   const response = await userService.getUserHistory(req.user);

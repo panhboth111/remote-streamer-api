@@ -17,12 +17,14 @@ class UserService {
       ).then(users => resolve(users));
     });
   }
+  
   async user({ email }) {
     return new Promise(async (resolve, reject) => {
       const user = await User.findOne({ email });
       return resolve(user);
     });
   }
+
   async signUp({ email, name, pwd }) {
     return new Promise(async (resolve, reject) => {
       let reg = /[a-z,.]{4,}\d{0,4}@kit.edu.kh/gi;
@@ -59,6 +61,7 @@ class UserService {
       });
     });
   }
+
   async signIn({ email, pwd }) {
     return new Promise(async (resolve, reject) => {
       const constraint = {
@@ -113,6 +116,7 @@ class UserService {
       });
     });
   }
+
   async changePassword(email, password, newPassword) {
     return new Promise(async (resolve, reject) => {
       if (password == newPassword)
@@ -175,6 +179,7 @@ class UserService {
       });
     });
   }
+
   async changeRole({ email, role }, { targetUser, targetRole }) {
     return new Promise(async (resolve, reject) => {
       console.log(`${email} ${role} ${targetRole} ${targetUser}`);
@@ -205,6 +210,7 @@ class UserService {
         });
     });
   }
+
   async changeName({email}, { name, password }) {
     return new Promise(async (resolve, reject) => {
       const existUser = await Credential.findOne({ email: email });
@@ -227,6 +233,7 @@ class UserService {
 
     });
   }
+
   async changeProfilePic({ newProfile }, { email }) {
     return new Promise(async (resolve, reject) => {
       await User.updateOne({ email }, { profilePic: newProfile })
@@ -239,6 +246,7 @@ class UserService {
         .catch(err => resolve({ message: err.message, success: false }));
     });
   }
+  
   async changeCoverPic({ newCover }, { email }) {
     return new Promise(async (resolve, reject) => {
       await User.updateOne({ email }, { coverPic: newCover })
@@ -251,6 +259,7 @@ class UserService {
         .catch(err => resolve({ message: err.message, success: false }));
     });
   }
+  
   async getUserHistory({ email }) {
     return new Promise(async (resolve, reject) => {
       await History.find({ email })

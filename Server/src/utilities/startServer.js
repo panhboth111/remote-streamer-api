@@ -4,7 +4,6 @@ module.exports = async(app,PORT,loaders) => {
     const io = require("socket.io")(server);
     io.on("connection", c => {
         c.on("streamStop", streamCode => {
-            console.log("hmmmmm");
             io.emit("stopStream", streamCode);
         });
     });

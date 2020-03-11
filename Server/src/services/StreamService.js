@@ -45,7 +45,7 @@ class StreamService {
         await User.updateOne({ email: owner }, { isStreaming: true });
         console.log(CHATSERVER)
 
-        //await axios.post(`${CHATSERVER}/createRoom`,{ roomName: streamTitle, roomOwner: owner, roomId: streamCode }).catch(er => console.log(er))
+        await axios.post(`${CHATSERVER}/createRoom`,{ roomName: streamTitle, roomOwner: owner, roomId: streamCode }).catch(er => console.log(er))
         console.log("done");
         return resolve({
           streamCode: savedStream.streamCode,
@@ -58,6 +58,7 @@ class StreamService {
       }
     });
   }
+
   async deviceStartStream(
     { deviceEmail, deviceName },
     { streamTitle, description, isPrivate, password, streamBy }
@@ -106,6 +107,7 @@ class StreamService {
       }
     });
   }
+
   async joinStream({ email, name }, { streamCode, password }) {
     return new Promise(async (resolve, reject) => {
       const domain = "meet.jit.si";
@@ -238,6 +240,7 @@ class StreamService {
       }
     });
   }
+
   async adminStopStream({ role }, { streamCode }) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -327,6 +330,7 @@ class StreamService {
       }
     });
   }
+
   async getCurrentStreams(limit, status) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -346,6 +350,7 @@ class StreamService {
       }
     });
   }
+
   async getStreamDetail({ streamCode }) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -361,6 +366,7 @@ class StreamService {
       }
     });
   }
+  
   async editStream({ streamCode, streamTitle, description }, { role, email }) {
     return new Promise(async (resolve, reject) => {
       if (role != "Admin")
