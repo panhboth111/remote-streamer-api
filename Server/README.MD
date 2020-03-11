@@ -1,5 +1,15 @@
 # Remote Streamer Server API
 
+## Core Technologies
+* NODE/EXPRESS for handling incoming API requests
+* jsonwebtoken for signing access tokens
+* bcrypt for hasing and unhasing password
+* MongoDB for database
+* mongoose for database connectivity
+* Axios to make requests
+* >in addition, we use packages like cors and body-parser for certain purposes.
+
+
 ## Installation steps
 
 1. Clone the repository
