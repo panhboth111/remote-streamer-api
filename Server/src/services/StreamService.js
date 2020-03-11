@@ -336,7 +336,9 @@ class StreamService {
       try {
         let currentlyStreamings;
         if (status == null) {
-          currentlyStreamings = await Streaming.find()
+          currentlyStreamings = await Streaming.find({},{
+            thumbnail : 0
+          })
             .limit(limit)
             .sort({ date: -1 });
         } else {
