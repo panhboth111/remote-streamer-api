@@ -45,7 +45,7 @@ class StreamService {
         await User.updateOne({ email: owner }, { isStreaming: true });
         console.log(CHATSERVER)
 
-        await axios.post(`${CHATSERVER}/createRoom`,{ roomName: streamTitle, roomOwner: owner, roomId: streamCode }).catch(er => console.log(er))
+        //await axios.post(`${CHATSERVER}/createRoom`,{ roomName: streamTitle, roomOwner: owner, roomId: streamCode }).catch(er => console.log(er))
         console.log("done");
         return resolve({
           streamCode: savedStream.streamCode,
