@@ -51,9 +51,4 @@
 | POST |  /streams/adminStopStream   |                                                                         {streamCode:string} | Token  | {message:string,errCode:string}                                                                                                                                                                  |
 |  |
 | POST |     /streams/editStream     |                               { streamCode:string, streamTitle:string, description:string } | Token  | {message:string,errCode?:boolean}                                                                                                                                                                |
-| POST |  /streams/getStreamDetail   |                                                                         {streamCode:string} | Token  | streamCode: string,                                                                                                                                                                              |
-
-          streamTitle: string,
-          description: string,
-          ownerName: string
-        }|
+| POST |  /streams/getStreamDetail   |                                                                         {streamCode:string} | Token  | streamCode: string,streamTitle: string,description: string,ownerName: string}                                                                                                                    |
