@@ -14,7 +14,7 @@
 
 1. Clone the repository
 
-...`git clone link_here`
+...`git clone git@gitlab.com:flib-vc/smart-classroom/lecture-live-streaming/remote-streamer-api.git`
 
 2. install dependencies
 
@@ -46,7 +46,6 @@
 | POST | /user/changeProfile |                   {newProfile:string} | Token  | {message:string,success:boolean}                                                                      |
 | POST |  /user/changeCover  |                     {newCover:string} | Token  | {message:string,success:boolean}                                                                      |
 |  |
-| POST |  /user/changeCover  |                     {newCover:string} | Token  | {message:string,success:boolean}                                                                      |
 | POST |  /user/changeName   |         {name:string,password:String} | Token  | {message:string,errCode?:boolean}                                                                     |
 
 ### Streams
@@ -55,7 +54,7 @@
 | ---- | :-------------------------: | ------------------------------------------------------------------------------------------: | :----: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | POST |    /streams/startStream     | {streamTitle:string,description:string,isPrivate:boolean,password?:string,thumbnail:string} | Token  | {streamCode:string,title:string,description:string}                                                                                                                                              |
 | POST | /streams/deviceStartStream  | {streamTitle:string,description:string,isPrivate:boolean,password?:string,thumbnail:string} | Token  | {email:string,name:string,role:string}                                                                                                                                                           |
-| POST |     /streams/jointream      |                                                        {streamCode:string,password?:string} | Token  | {options:object,domain:string,role:string,name:string} or {message:any,errCode:any}                                                                                                              |
+| POST |     /streams/joinStream      |                                                        {streamCode:string,password?:string} | Token  | {options:object,domain:string,role:string,name:string} or {message:any,errCode:any}                                                                                                              |
 | POST |     /streams/stopStream     |                                                                                        NONE | Token  | {message:string,status:boolean}                                                                                                                                                                  |
 | POST | /streams/getCurrentlyStream |                                                               {limit:string,status:boolean} | Token  | Array of {streamCode:string,streamTitle:string,description:string,thumbnail:string,isPrivate:boolean,password:string,owner:string,ownerName:string,date:Date,isActive:boolean,streamFrom:string} |
 | POST |  /streams/adminStopStream   |                                                                         {streamCode:string} | Token  | {message:string,errCode:string}                                                                                                                                                                  |
