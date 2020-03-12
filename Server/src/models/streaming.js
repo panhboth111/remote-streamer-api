@@ -26,12 +26,8 @@ const schema = mongoose.Schema({
         default : ""
     },
     owner : {
-        type : String,
-        required : true
-    },
-    ownerName :{
-        type : String,
-        required : true
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'Users'
     },
     date : {
         type : Date,
