@@ -262,7 +262,7 @@ class UserService {
   
   async getUserHistory({ email }) {
     return new Promise(async (resolve, reject) => {
-      await History.find({ email })
+      await History.find({ email }).populate("stream",{streamCode:1, streamTitle:1 , thumbnail:1})
         .then(history => resolve({ message: history, success: true }))
         .catch(err => resolve({ message: err, success: false }));
     });

@@ -4,11 +4,9 @@ const schema = mongoose.Schema({
   action: {
     type: String
   },
-  streamCode: {
-    type: String
-  },
-  streamTitle: {
-    type: String
+  stream: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref:"Streamings"
   },
   email: {
     type: String

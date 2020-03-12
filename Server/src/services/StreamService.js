@@ -36,10 +36,11 @@ class StreamService {
           owner : user._id
         });
         const savedStream = await newStream.save();
+        // Get the _id of the stream 
+        const historyStream = await Streaming.findOne({streamCode},{_id:1})
         await new History({
           action: "Started a stream",
-          streamCode,
-          streamTitle,
+          stream : historyStream._id,
           email: owner
         }).save();
         await User.updateOne({ email: owner }, { isStreaming: true });
@@ -113,11 +114,10 @@ class StreamService {
       const domain = "meet.jit.si";
       try {
         //Get stream info
-        const theStream = await Streaming.findOne({ streamCode });
+        const theStream = await Streaming.findOne({ streamCode },{thumbnail:0});
         await new History({
           action: "Joined a stream",
-          streamCode,
-          streamTitle: theStream.streamTitle,
+          stream : theStream._id,
           email
         }).save();
         // Check Stream status
