@@ -7,11 +7,11 @@ const axios = require("axios");
 const {CHATSERVER,SERVER} = require("../../config")
 class StreamService {
   async startStream(
-    { owner, ownerName },
+    { owner },
     { streamTitle, description, isPrivate, password, thumbnail }
   ) {
     return new Promise(async (resolve, reject) => {
-      const user = await User.findOne({ email: owner });
+      let user = await User.findOne({ email: owner },{isStreaming : 1});
       if (user.isStreaming)
         return resolve({
           message: "Stream is already initialized",
@@ -25,6 +25,7 @@ class StreamService {
           streamCode = uID(12);
           isNotUnique = await Streaming.findOne({ streamCode });
         } while (isNotUnique);
+        user = await User.findOne({ email: owner },{profilePic : 1});
         const newStream = new Streaming({
           streamCode,
           streamTitle,
@@ -32,8 +33,7 @@ class StreamService {
           thumbnail,
           isPrivate,
           password,
-          owner,
-          ownerName
+          owner : user._id
         });
         const savedStream = await newStream.save();
         await new History({
@@ -45,7 +45,7 @@ class StreamService {
         await User.updateOne({ email: owner }, { isStreaming: true });
         console.log(CHATSERVER)
 
-        await axios.post(`${CHATSERVER}/createRoom`,{ roomName: streamTitle, roomOwner: owner, roomId: streamCode }).catch(er => console.log(er))
+        // await axios.post(`${CHATSERVER}/createRoom`,{ roomName: streamTitle, roomOwner: owner, roomId: streamCode }).catch(er => console.log(er))
         console.log("done");
         return resolve({
           streamCode: savedStream.streamCode,
@@ -257,7 +257,7 @@ class StreamService {
         if (theStream) {
           // Update the owner streaming status
           const result = await User.updateOne(
-            { email: theStream.owner },
+            { _id: theStream.owner },
             { isStreaming: false }
           );
           // If update owner streaming status succeed
@@ -295,9 +295,10 @@ class StreamService {
   async stopStream(owner) {
     return new Promise(async (resolve, reject) => {
       try {
+        const user = await User.findOne({email : owner},{_id : 1})
         // Find the stream and set the active state to false
         const result = await Streaming.updateMany(
-          { owner, isActive: true },
+          { owner : user._id, isActive: true },
           { isActive: false }
         );
         if (result.n >= 1) {
@@ -340,13 +341,14 @@ class StreamService {
             thumbnail : 0
           })
             .limit(limit)
-            .sort({ date: -1 });
+            .sort({ date: -1 }).populate('owner',{name:1});;
+          return resolve(currentlyStreamings);
         } else {
           currentlyStreamings = await Streaming.find({ isActive: status })
             .limit(limit)
-            .sort({ date: -1 });
+            .sort({ date: -1 }).populate('owner',{name:1,role:1,profilePic:1});
+          return resolve(currentlyStreamings);
         }
-        return resolve(currentlyStreamings);
       } catch (err) {
         return resolve(err);
       }
