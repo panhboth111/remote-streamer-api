@@ -114,7 +114,7 @@ class StreamService {
       const domain = "meet.jit.si";
       try {
         //Get stream info
-        const theStream = await Streaming.findOne({ streamCode },{thumbnail:0});
+        const theStream = await Streaming.findOne({ streamCode },{thumbnail:0}).populate('owner',{email:1});
         await new History({
           action: "Joined a stream",
           stream : theStream._id,
@@ -140,11 +140,13 @@ class StreamService {
           }
         }
         // Check ownership
+        console.log(theStream.streamFrom)
         if (
-          (theStream.owner === email &&
+          (theStream.owner.email === email &&
             theStream.streamFrom == "Author's cam") ||
           theStream.streamFrom === email
         ) {
+          console.log(`==> ${email} : Get the stream as lecturer`)  
           // Owner
           // For Streamer/Lecturer
           const interfaceConfigLecturer = {
@@ -200,6 +202,7 @@ class StreamService {
             isStreaming: true
           });
         } else {
+          console.log(`==> ${email} : Get the stream as student`)  
           // Not-Owner
           // For Stream Participant - *Not Class Owner*
           const interfaceConfigStudent = {
