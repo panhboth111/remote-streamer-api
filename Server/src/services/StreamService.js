@@ -4,7 +4,6 @@ const History = require("../models/history");
 const Streaming = require("../models/streaming");
 const uID = require("../utilities/UniqueCode");
 const axios = require("axios");
-const {CHATSERVER,SERVER} = require("../../config")
 class StreamService {
   async startStream(
     { owner },
@@ -44,9 +43,8 @@ class StreamService {
           email: owner
         }).save();
         await User.updateOne({ email: owner }, { isStreaming: true });
-        console.log(CHATSERVER)
 
-        // await axios.post(`${CHATSERVER}/createRoom`,{ roomName: streamTitle, roomOwner: owner, roomId: streamCode }).catch(er => console.log(er))
+        await axios.post(`${process.env.CHATSERVER}/createRoom`,{ roomName: streamTitle, roomOwner: owner, roomId: streamCode }).catch(err => console.log(err))
         console.log("done");
         return resolve({
           streamCode: savedStream.streamCode,
@@ -96,7 +94,7 @@ class StreamService {
           { currentStream: streamCode, isStreaming: true }
         );
         axios
-          .post(SERVER+"/redirect", { streamBy, streamCode })
+          .post(`${process.env.SERVER}/redirect`, { streamBy, streamCode })
           .catch(er => console.log(er));
         return resolve({
           streamCode: savedStream.streamCode,
@@ -344,7 +342,8 @@ class StreamService {
             thumbnail : 0
           })
             .limit(limit)
-            .sort({ date: -1 }).populate('owner',{name:1});;
+            .populate('owner',{name:1});;
+
           return resolve(currentlyStreamings);
         } else {
           currentlyStreamings = await Streaming.find({ isActive: status })
