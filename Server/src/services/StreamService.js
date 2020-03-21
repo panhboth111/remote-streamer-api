@@ -109,7 +109,7 @@ class StreamService {
 
   async joinStream({ email, name }, { streamCode, password }) {
     return new Promise(async (resolve, reject) => {
-      const domain = "meet.jit.si";
+      const domain = "jitsi.a2a-digital.com";
       try {
         //Get stream info
         const theStream = await Streaming.findOne({ streamCode },{thumbnail:0}).populate('owner',{email:1});
