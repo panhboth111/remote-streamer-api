@@ -109,7 +109,7 @@ class StreamService {
 
   async joinStream({ email, name }, { streamCode, password }) {
     return new Promise(async (resolve, reject) => {
-      const domain = "meet.jit.si";
+      const domain = "jitsi.a2a-digital.com";
       try {
         //Get stream info
         const theStream = await Streaming.findOne({ streamCode },{thumbnail:0}).populate('owner',{email:1});
@@ -151,15 +151,12 @@ class StreamService {
             TOOLBAR_BUTTONS: [
               "microphone",
               "camera",
-              "closedcaptions",
               "desktop",
               "fullscreen",
               "fodeviceselection",
               "profile",
               "recording",
               "shortcuts",
-              "livestreaming",
-              "etherpad",
               "sharedvideo",
               "settings",
               "raisehand",
@@ -168,10 +165,7 @@ class StreamService {
               "stats",
               "shortcuts",
               "tileview",
-              "videobackgroundblur",
-              "download",
-              "help",
-              "info"
+              "download"
             ],
             SETTINGS_SECTIONS: ["devices", "language", "moderator"],
             SHOW_JITSI_WATERMARK: false,
@@ -208,9 +202,12 @@ class StreamService {
               "closedcaptions",
               "fullscreen",
               "settings",
-              "raisehand"
+              "raisehand",
+              "microphone",
+              "camera",
+              "desktop",
             ],
-            SETTINGS_SECTIONS: ["language"],
+            SETTINGS_SECTIONS: ["devices", "language"],
             SHOW_JITSI_WATERMARK: false,
             SHOW_WATERMARK_FOR_GUESTS: false,
             VERTICAL_FILMSTRIP: false,
