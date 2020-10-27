@@ -23,14 +23,14 @@ router.post("/deviceStartStream", verify, async (req, res) => {
 router.post("/joinStream", verify, async (req, res) => {
   const response = await streamService.joinStream(req.user, {
     streamCode: req.body.streamCode,
-    password: req.body.pwd
+    password: req.body.pwd,
   });
   return res.json(response);
 });
 // Stop stream
 router.post("/stopStream", verify, async (req, res) => {
-  console.log("I'm here");
   const response = await streamService.stopStream(req.user.email);
+  console.log(response);
   return res.json(response);
 });
 // Admin Stop Stream

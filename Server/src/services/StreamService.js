@@ -10,11 +10,11 @@ class StreamService {
     { streamTitle, description, isPrivate, password, thumbnail }
   ) {
     return new Promise(async (resolve, reject) => {
-      let user = await User.findOne({ email: owner },{isStreaming : 1});
+      let user = await User.findOne({ email: owner }, { isStreaming: 1 });
       if (user.isStreaming)
         return resolve({
           message: "Stream is already initialized",
-          errCode: "SS-001"
+          errCode: "SS-001",
         });
       else await User.updateOne({ email: owner }, { isStreaming: true });
       try {
@@ -24,7 +24,7 @@ class StreamService {
           streamCode = uID(12);
           isNotUnique = await Streaming.findOne({ streamCode });
         } while (isNotUnique);
-        user = await User.findOne({ email: owner },{profilePic : 1});
+        user = await User.findOne({ email: owner }, { profilePic: 1 });
         const newStream = new Streaming({
           streamCode,
           streamTitle,
@@ -32,24 +32,33 @@ class StreamService {
           thumbnail,
           isPrivate,
           password,
-          owner : user._id
+          owner: user._id,
         });
         const savedStream = await newStream.save();
-        // Get the _id of the stream 
-        const historyStream = await Streaming.findOne({streamCode},{_id:1})
+        // Get the _id of the stream
+        const historyStream = await Streaming.findOne(
+          { streamCode },
+          { _id: 1 }
+        );
         await new History({
           action: "Started a stream",
-          stream : historyStream._id,
-          email: owner
+          stream: historyStream._id,
+          email: owner,
         }).save();
         await User.updateOne({ email: owner }, { isStreaming: true });
 
-        await axios.post(`${process.env.CHATSERVER}/createRoom`,{ roomName: streamTitle, roomOwner: owner, roomId: streamCode }).catch(err => console.log(err))
+        await axios
+          .post(`${process.env.CHATSERVER}/createRoom`, {
+            roomName: streamTitle,
+            roomOwner: owner,
+            roomId: streamCode,
+          })
+          .catch((err) => console.log(err));
         console.log("done");
         return resolve({
           streamCode: savedStream.streamCode,
           streamTitle: savedStream.streamTitle,
-          Description: savedStream.Description
+          Description: savedStream.Description,
         });
       } catch (err) {
         console.log(err);
@@ -75,7 +84,7 @@ class StreamService {
           action: "Started a stream",
           streamCode,
           streamTitle,
-          email: streamBy
+          email: streamBy,
         }).save();
         const newStream = new Streaming({
           streamCode,
@@ -86,22 +95,25 @@ class StreamService {
           password,
           owner: streamBy,
           ownerName: _U.name,
-          streamFrom: deviceEmail
+          streamFrom: deviceEmail,
         });
         const savedStream = await newStream.save();
         await User.updateOne(
           { email: streamBy },
           { currentStream: streamCode, isStreaming: true }
         );
-        axios
-          .post(`${process.env.SERVER}/redirect`, { streamBy, streamCode })
-          .catch(er => console.log(er));
+        const response = await axios.post(`http://localhost:3001/redirect`, {
+          streamBy,
+          streamCode,
+        });
+        console.log(response);
         return resolve({
           streamCode: savedStream.streamCode,
           streamTitle: savedStream.streamTitle,
-          Description: savedStream.Description
+          Description: savedStream.Description,
         });
       } catch (err) {
+        console.log(err.message);
         resolve(err);
       }
     });
@@ -112,39 +124,45 @@ class StreamService {
       const domain = "jitsi.a2a-digital.com";
       try {
         //Get stream info
-        const theStream = await Streaming.findOne({ streamCode },{thumbnail:0}).populate('owner',{email:1});
+        const theStream = await Streaming.findOne(
+          { streamCode },
+          { thumbnail: 0 }
+        ).populate("owner", { email: 1 });
         await new History({
           action: "Joined a stream",
-          stream : theStream._id,
-          email
+          stream: theStream._id,
+          email,
         }).save();
         // Check Stream status
         if (!theStream.isActive)
           return resolve({
             message: "Stream is not currently available",
-            errCode: "ST-001"
+            errCode: "ST-001",
           });
         // Check Stream privacy
         if (!theStream.isPrivate) {
           if (!password.equals("") && password.equals(null)) {
             if (!theStream.password.equals(password)) {
-              return resolve({ message: "Incorrect password", errCode: "ST-002" });
+              return resolve({
+                message: "Incorrect password",
+                errCode: "ST-002",
+              });
             }
           } else {
             return resolve({
               message: "Password is required",
-              errCode: "ST-003"
+              errCode: "ST-003",
             });
           }
         }
         // Check ownership
-        console.log(theStream.streamFrom)
+        console.log(theStream.streamFrom);
         if (
           (theStream.owner.email === email &&
             theStream.streamFrom == "Author's cam") ||
           theStream.streamFrom === email
         ) {
-          console.log(`==> ${email} : Get the stream as lecturer`)  
+          console.log(`==> ${email} : Get the stream as lecturer`);
           // Owner
           // For Streamer/Lecturer
           const interfaceConfigLecturer = {
@@ -165,24 +183,24 @@ class StreamService {
               "stats",
               "shortcuts",
               "tileview",
-              "download"
+              "download",
             ],
             SETTINGS_SECTIONS: ["devices", "language", "moderator"],
             SHOW_JITSI_WATERMARK: false,
             SHOW_WATERMARK_FOR_GUESTS: false,
             channelLastN: 1,
             VERTICAL_FILMSTRIP: true,
-            SET_FILMSTRIP_ENABLED: false
+            SET_FILMSTRIP_ENABLED: false,
           };
           const options = {
             roomName: streamCode,
             interfaceConfigOverwrite: interfaceConfigLecturer,
             userInfo: {
-              email: email
+              email: email,
             },
-            startVideoMuted : 0,
-            startWithVideoMuted : true,
-            startWithAudioMuted: true
+            startVideoMuted: 0,
+            startWithVideoMuted: true,
+            startWithAudioMuted: true,
           };
           if (theStream.streamFrom !== email)
             await User.updateOne({ email }, { isStreaming: true });
@@ -191,10 +209,10 @@ class StreamService {
             domain: domain,
             role: "Lecturer",
             name: name,
-            isStreaming: true
+            isStreaming: true,
           });
         } else {
-          console.log(`==> ${email} : Get the stream as student`)  
+          console.log(`==> ${email} : Get the stream as student`);
           // Not-Owner
           // For Stream Participant - *Not Class Owner*
           const interfaceConfigStudent = {
@@ -211,7 +229,7 @@ class StreamService {
             SHOW_JITSI_WATERMARK: false,
             SHOW_WATERMARK_FOR_GUESTS: false,
             VERTICAL_FILMSTRIP: false,
-            SET_FILMSTRIP_ENABLED: false
+            SET_FILMSTRIP_ENABLED: false,
 
             // filmStripOnly: true
           };
@@ -219,18 +237,18 @@ class StreamService {
             roomName: streamCode,
             interfaceConfigOverwrite: interfaceConfigStudent,
             userInfo: {
-              email: email
+              email: email,
             },
-            startVideoMuted : 0,
-            startWithVideoMuted : true,
-            startWithAudioMuted: true
+            startVideoMuted: 0,
+            startWithVideoMuted: true,
+            startWithAudioMuted: true,
           };
           // Send Back Data Lah
           return resolve({
             options: optionsStudents,
             domain: domain,
             role: "Student",
-            name: name
+            name: name,
           });
         }
       } catch (err) {
@@ -246,7 +264,7 @@ class StreamService {
           return resolve({
             message:
               "You are not authorized to complete the following operation!",
-            errCode: "ASS-001"
+            errCode: "ASS-001",
           });
         }
         // Find the stream
@@ -272,19 +290,19 @@ class StreamService {
           } else {
             return resolve({
               message: "Error occured when trying to change User status!",
-              errCode: "ASS-002"
+              errCode: "ASS-002",
             });
           }
         } else {
           return resolve({
             message: "No stream with " + streamCode + "was found",
-            errCode: "ASS-003"
+            errCode: "ASS-003",
           });
         }
       } catch (error) {
         return resolve({
           message: "Error occured when stopping the stream",
-          errCode: "ASS-004"
+          errCode: "ASS-004",
         });
       }
     });
@@ -293,10 +311,10 @@ class StreamService {
   async stopStream(owner) {
     return new Promise(async (resolve, reject) => {
       try {
-        const user = await User.findOne({email : owner},{_id : 1})
+        const user = await User.findOne({ email: owner }, { _id: 1 });
         // Find the stream and set the active state to false
         const result = await Streaming.updateMany(
-          { owner : user._id, isActive: true },
+          { owner, isActive: true },
           { isActive: false }
         );
         if (result.n >= 1) {
@@ -309,22 +327,23 @@ class StreamService {
             console.log("successful");
             return resolve({
               message: "Stop your current stream as successfully!",
-              status: true
+              status: true,
             });
           } else {
             console.log("error");
             return resolve({
               message: "Problem Occured during stop streaming process",
-              status: false
+              status: false,
             });
           }
         } else {
           return resolve({
             message: "Problem Occured during stop streaming process",
-            status: false
+            status: false,
           });
         }
       } catch (err) {
+        console.log(err.message);
         return resolve(err);
       }
     });
@@ -335,17 +354,21 @@ class StreamService {
       try {
         let currentlyStreamings;
         if (status == null) {
-          currentlyStreamings = await Streaming.find({},{
-            thumbnail : 0
-          })
+          currentlyStreamings = await Streaming.find(
+            {},
+            {
+              thumbnail: 0,
+            }
+          )
             .limit(limit)
-            .populate('owner',{name:1});;
+            .populate("owner", { name: 1 });
 
           return resolve(currentlyStreamings);
         } else {
           currentlyStreamings = await Streaming.find({ isActive: status })
             .limit(limit)
-            .sort({ date: -1 }).populate('owner',{name:1,role:1,profilePic:1});
+            .sort({ date: -1 })
+            .populate("owner", { name: 1, role: 1, profilePic: 1 });
           return resolve(currentlyStreamings);
         }
       } catch (err) {
@@ -362,20 +385,20 @@ class StreamService {
           streamCode: theStream.streamCode,
           streamTitle: theStream.streamTitle,
           description: theStream.description,
-          ownerName: theStream.ownerName
+          ownerName: theStream.ownerName,
         });
       } catch (err) {
         return resolve(err);
       }
     });
   }
-  
+
   async editStream({ streamCode, streamTitle, description }, { role, email }) {
     return new Promise(async (resolve, reject) => {
       if (role != "Admin")
         return resolve({
           message: "You are not authorized for the following operation!",
-          errCode: "CS-001"
+          errCode: "CS-001",
         });
       {
         const result = await Streaming.updateOne(
@@ -388,7 +411,7 @@ class StreamService {
           return resolve({
             message:
               "An error occured during the process! Failed to update the stream's data!",
-            errCode: "CS-002"
+            errCode: "CS-002",
           });
       }
     });

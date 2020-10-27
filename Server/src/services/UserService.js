@@ -14,10 +14,10 @@ class UserService {
       User.find(
         { email: { $ne: owner }, role: { $ne: "Admin" } },
         { email: 1, name: 1, role: 1 }
-      ).then(users => resolve(users));
+      ).then((users) => resolve(users));
     });
   }
-  
+
   async user({ email }) {
     return new Promise(async (resolve, reject) => {
       const user = await User.findOne({ email });
@@ -28,32 +28,37 @@ class UserService {
   async signUp({ email, name, pwd }) {
     return new Promise(async (resolve, reject) => {
       let reg = /[a-z,.]{4,}\d{0,4}@kit.edu.kh/gi;
-      let Devreg = /device-[A-Z,a-z,0-9]{4}@device.com/gi;
+      let Devreg = /[A-Z,a-z,0-9]{24}@device.com/gi;
       let role = "";
       if (reg.test(email)) role = "Student";
       else if (Devreg.test(email)) role = "Device";
-      else return resolve({ message: "Only KIT email is allowed", errCode: "SU-001" });
+      else
+        return resolve({
+          message: "Only KIT email is allowed",
+          errCode: "SU-001",
+        });
       bcrypt.genSalt(10, async (err, salt) => {
         bcrypt.hash(pwd, salt, async (err, hash) => {
           if (err) reject(err);
           try {
             const credential = new Credential({
               email: email,
-              pwd: hash
+              pwd: hash,
             });
             const user = new User({
               email: email,
               name: name,
-              role: role
+              role: role,
             });
             await user.save();
             await credential.save();
             return resolve({ message: "Account registered as successfully!" });
           } catch (err) {
+            console.log(err.message);
             if (err.code == 11000)
               resolve({
                 message: "Email is already registered!",
-                errCode: "SU-002"
+                errCode: "SU-002",
               });
             return resolve({ err: err.message, errCode: "SU-003" });
           }
@@ -67,7 +72,7 @@ class UserService {
       const constraint = {
         email: {
           presence: true,
-          email: true
+          email: true,
         },
         password: {
           presence: true,
@@ -75,9 +80,9 @@ class UserService {
             minimum: 4,
             maximum: 16,
             tooShort: "is too short",
-            tooLong: "is too long"
-          }
-        }
+            tooLong: "is too long",
+          },
+        },
       };
       const validateRes = validate({ email, pwd }, constraint);
       if (validateRes == undefined)
@@ -87,7 +92,7 @@ class UserService {
         return resolve({
           message: "Email does not match with any user",
           success: false,
-          token: null
+          token: null,
         });
       const user = await User.findOne({ email });
       bcrypt.compare(pwd, existUser.pwd, (err, isMatch) => {
@@ -101,7 +106,11 @@ class UserService {
           );
           console.log("New Login from : " + email);
           //Put token in the header
-          return resolve({ message: "Logged in successfully", success: true, token });
+          return resolve({
+            message: "Logged in successfully",
+            success: true,
+            token,
+          });
         } else {
           // if the pwd is not match
           //resolve({"message" : "Password entered is incorrect"})
@@ -109,7 +118,7 @@ class UserService {
             resolve({
               message: "Incorrect password",
               success: false,
-              token: null
+              token: null,
             })
           );
         }
@@ -122,7 +131,7 @@ class UserService {
       if (password == newPassword)
         return resolve({
           message: "New password can't be the same to the previous password!",
-          errCode: "CP-001"
+          errCode: "CP-001",
         });
       const constraint = {
         password: {
@@ -131,19 +140,20 @@ class UserService {
             minimum: 4,
             maximum: 16,
             tooShort: "is too short",
-            tooLong: "is too long"
-          }
-        }
+            tooLong: "is too long",
+          },
+        },
       };
       const validateRes = validate(
         { password: password, password: newPassword },
         constraint
       );
-      console.log(validateRes)
-      if (validateRes != undefined) return resolve({
-        message: validateRes.password,
-        errCode: "CP-005"
-      });
+      console.log(validateRes);
+      if (validateRes != undefined)
+        return resolve({
+          message: validateRes.password,
+          errCode: "CP-005",
+        });
       const existUser = await Credential.findOne({ email: email });
       bcrypt.compare(password, existUser.pwd, async (err, isMatch) => {
         if (err) return resolve(err);
@@ -159,12 +169,14 @@ class UserService {
                   { pwd: hash }
                 );
                 if (result.n >= 1) {
-                  return resolve({ message: "Password changed as successfully!" });
+                  return resolve({
+                    message: "Password changed as successfully!",
+                  });
                 } else {
                   return resolve({
                     message:
                       "Problem Occured during the process of changing password!",
-                    errCode: "CP-003"
+                    errCode: "CP-003",
                   });
                 }
               } catch (err) {
@@ -196,22 +208,22 @@ class UserService {
               targetUser +
               "' to '" +
               targetRole +
-              "'"
+              "'",
           });
         else
           return resolve({
             messgage: "An error occurred during role changing process",
-            errCode: "CR-002"
+            errCode: "CR-002",
           });
       } else
         return resolve({
           message: "You are not authorized to performed the following task",
-          errCode: "CR-004"
+          errCode: "CR-004",
         });
     });
   }
 
-  async changeName({email}, { name, password }) {
+  async changeName({ email }, { name, password }) {
     return new Promise(async (resolve, reject) => {
       const existUser = await Credential.findOne({ email: email });
       bcrypt.compare(password, existUser.pwd, async (err, isMatch) => {
@@ -219,18 +231,17 @@ class UserService {
         if (isMatch) {
           // if the pwd matches
           // Generate new hash and pass it into database
-          const result = await User.updateOne({email},{name:name})
-          if (result.n == 1){
-            return resolve({ message : "Successfully change the user's name" })
-          }else{
-            return resolve({ message : "Failed to change the user's name"})
+          const result = await User.updateOne({ email }, { name: name });
+          if (result.n == 1) {
+            return resolve({ message: "Successfully change the user's name" });
+          } else {
+            return resolve({ message: "Failed to change the user's name" });
           }
         } else {
           // if the pwd is not match
           return resolve({ message: "Incorrect Password!", errCode: "CN-001" });
         }
       });
-
     });
   }
 
@@ -240,31 +251,32 @@ class UserService {
         .then(() =>
           resolve({
             message: "Profile picture changed successfully",
-            success: true
+            success: true,
           })
         )
-        .catch(err => resolve({ message: err.message, success: false }));
+        .catch((err) => resolve({ message: err.message, success: false }));
     });
   }
-  
+
   async changeCoverPic({ newCover }, { email }) {
     return new Promise(async (resolve, reject) => {
       await User.updateOne({ email }, { coverPic: newCover })
         .then(() =>
           resolve({
             message: "Cover picture changed successfully",
-            success: true
+            success: true,
           })
         )
-        .catch(err => resolve({ message: err.message, success: false }));
+        .catch((err) => resolve({ message: err.message, success: false }));
     });
   }
-  
+
   async getUserHistory({ email }) {
     return new Promise(async (resolve, reject) => {
-      await History.find({ email }).populate("stream",{streamCode:1, streamTitle:1 , thumbnail:1})
-        .then(history => resolve({ message: history, success: true }))
-        .catch(err => resolve({ message: err, success: false }));
+      await History.find({ email })
+        .populate("stream", { streamCode: 1, streamTitle: 1, thumbnail: 1 })
+        .then((history) => resolve({ message: history, success: true }))
+        .catch((err) => resolve({ message: err, success: false }));
     });
   }
 }
